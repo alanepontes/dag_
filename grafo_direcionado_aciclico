@@ -1,0 +1,62 @@
+﻿create table orgao(id_orgao int not null primary key, nome_orgao varchar(30));
+
+create table organograma(id_organograma int not null primary key, data_mudanca_de_nome date, id_edge int not null, 
+start_orgao int, end_orgao int,
+foreign key(start_orgao) references orgao(id_orgao),
+foreign key(end_orgao) references orgao(id_orgao));
+
+
+insert into orgao values (1,'Administracao');
+insert into orgao values (2,'Financas');
+insert into orgao values (3,'Secretaria de administracao');
+insert into orgao values (4,'Secretaria de financas');
+insert into orgao values (5,'Administracao e Financas');
+insert into orgao values (6, 'Administracao');
+insert into orgao values (7,'Financas');
+insert into orgao values (8,'Governo');
+insert into orgao values (9,'Saude');
+insert into orgao values (10,'Administracao e governo');
+insert into orgao values (11,'Financas');
+insert into orgao values (12,'Saude');
+insert into orgao values (13,'Administracao e governo');
+insert into orgao values (14,'Financas');
+
+insert into organograma values (1,  current_date, 1, 1, 3);
+insert into organograma values (2,  current_date, 2, 2, 4);
+insert into organograma values (3,  current_date, 3, 3, 5);
+insert into organograma values (4,  current_date, 4, 4, 5);
+insert into organograma values (5,  current_date, 5, 5, 6);
+insert into organograma values (6,  current_date, 6, 5, 7);
+insert into organograma values (7,  current_date, 7, 5, 8);
+insert into organograma values (8,  current_date, 8, 6, 10);
+insert into organograma values (9,  current_date, 9, 7, 11);
+insert into organograma values (10, current_date, 10, 8, 10);
+insert into organograma values (11, current_date, 11, 10, 13);
+insert into organograma values (12, current_date, 12, 11, 14);
+
+update organograma set data_mudanca_de_nome = '01/01/2013' where id_organograma = 1;
+update organograma set data_mudanca_de_nome = '01/01/2013' where id_organograma = 2;
+update organograma set data_mudanca_de_nome = '01/08/2013' where id_organograma = 3;
+update organograma set data_mudanca_de_nome = '01/08/2013' where id_organograma = 4;
+update organograma set data_mudanca_de_nome = '01/01/2014' where id_organograma = 5;
+update organograma set data_mudanca_de_nome = '01/01/2014' where id_organograma = 6;
+update organograma set data_mudanca_de_nome = '01/01/2014' where id_organograma = 7;
+update organograma set data_mudanca_de_nome = '01/01/2015' where id_organograma = 8;
+update organograma set data_mudanca_de_nome = '01/01/2015' where id_organograma = 9;
+update organograma set data_mudanca_de_nome = '01/01/2015' where id_organograma = 10;
+update organograma set data_mudanca_de_nome = '01/01/2016' where id_organograma = 11;
+update organograma set data_mudanca_de_nome = '01/01/2016' where id_organograma = 12;
+
+with recursive tree_orgaos (id_organograma, start_orgao) as
+(
+select id_organograma, start_orgao from organograma where end_orgao =  13  and data_mudanca_de_nome >= '01/08/2013'
+UNION ALL
+select organograma.id_organograma, organograma.start_orgao from organograma 
+INNER JOIN tree_orgaos ON organograma.end_orgao = tree_orgaos.start_orgao
+where data_mudanca_de_nome >= '01/08/2013'
+)
+select id_organograma, data_mudanca_de_nome, start_orgao, end_orgao from organograma where end_orgao = 5;
+
+select orgao.nome_orgao from tree_orgaos inner join orgao on start_orgao = id_orgao;
+
+select distinct orgao.nome_orgao from tree_orgaos inner join orgao on start_orgao = id_orgao;
